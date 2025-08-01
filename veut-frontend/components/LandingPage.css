@@ -1,0 +1,19 @@
+.landing-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #000d1a;
+  color: white;
+}
+
+.veut-title {
+  font-size: 5rem;
+  font-weight: bold;
+}
+
+.veut-subtitle {
+  font-size: 2rem;
+  margin-top: 10px;
+}
