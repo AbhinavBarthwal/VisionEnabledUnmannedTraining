@@ -1,0 +1,68 @@
+# Model Configuration for Industrial Safety Equipment Detection
+
+# Dataset Configuration
+dataset:
+  name: "industrial_safety_equipment"
+  description: "Synthetic dataset from Duality AI's Falcon platform"
+  path: "../HackByte_Dataset/yolo_params.yaml"
+  classes: 3
+  class_names: ["FireExtinguisher", "ToolBox", "OxygenTank"]
+
+# Model Configuration
+model:
+  architecture: "yolov8n"  # Options: yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+  pretrained: true
+  input_size: [640, 640]
+  
+# Training Configuration
+training:
+  epochs: 100
+  batch_size: 16
+  learning_rate: 0.01
+  optimizer: "AdamW"
+  momentum: 0.937
+  weight_decay: 0.0005
+  warmup_epochs: 3
+  patience: 50  # Early stopping patience
+  
+  # Data augmentation
+  augmentation:
+    hsv_h: 0.015
+    hsv_s: 0.7
+    hsv_v: 0.4
+    degrees: 0.0
+    translate: 0.1
+    scale: 0.5
+    shear: 0.0
+    perspective: 0.0
+    flipud: 0.0
+    fliplr: 0.5
+    mosaic: 1.0
+    mixup: 0.0
+    copy_paste: 0.0
+
+# Validation Configuration
+validation:
+  batch_size: 32
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  max_det: 300
+  
+# Export Configuration
+export:
+  formats: ["onnx", "tensorrt", "torchscript"]
+  optimize: true
+  half: false
+  
+# Logging Configuration
+logging:
+  project_name: "industrial_safety_detection"
+  experiment_name: "yolov8_falcon_dataset"
+  log_dir: "./runs"
+  save_period: 10
+  
+# Hardware Configuration
+device:
+  gpu: true
+  multi_gpu: false
+  workers: 8
