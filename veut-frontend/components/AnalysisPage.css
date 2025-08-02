@@ -20,7 +20,7 @@
 
   .left-panel {
     width: 100vw !important;
-    height: 80% !important; /* 80% of viewport height */
+    height: 70% !important; /* 80% of viewport height */
     padding: 0 !important;
     margin: 0 !important;
     position: relative;
@@ -109,6 +109,7 @@
     margin: 0.3rem 1.5rem;
     font-size: 0.95rem;
   }
+
 }
 
 /* ---------- DESKTOP VIEW ---------- */
@@ -139,10 +140,7 @@
   background-color: #001524;
   padding: 2rem;
 }
-.center-toggle-btn, .camera-switch-btn
-{
-  display: none !important;
-}
+
 .object-list {
   background: #fff;
   color: black;
