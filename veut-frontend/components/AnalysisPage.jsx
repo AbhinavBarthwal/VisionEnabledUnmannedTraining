@@ -1,10 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react'
-import './AnalysisPage.css'
+import React, { useEffect, useRef, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
+import './AnalysisPage.css';
+
+// === Camera Toggle Button Component ===
+const CameraToggleButton = ({ onClick }) => (
+  <button
+    className="camera-switch-btn"
+    onClick={onClick}
+    title="Switch Camera"
+  >
+    <RefreshCw size={30} />
+  </button>
+);
 
 const AnalysisPage = () => {
-  const videoRef = useRef(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [facingMode, setFacingMode] = useState('environment')
+  const videoRef = useRef(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [facingMode, setFacingMode] = useState('environment');
 
   useEffect(() => {
     const getVideo = async () => {
@@ -12,17 +24,17 @@ const AnalysisPage = () => {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode },
           audio: false,
-        })
+        });
         if (videoRef.current) {
-          videoRef.current.srcObject = stream
+          videoRef.current.srcObject = stream;
         }
       } catch (err) {
-        console.error('Error accessing webcam:', err)
+        console.error('Error accessing webcam:', err);
       }
-    }
+    };
 
-    getVideo()
-  }, [facingMode])
+    getVideo();
+  }, [facingMode]);
 
   return (
     <div className="analysis-container">
@@ -35,15 +47,12 @@ const AnalysisPage = () => {
           onClick={() => setIsAnalyzing(!isAnalyzing)}
         />
 
-        {/* Camera switcher (optional) */}
-        <button
-          className="camera-switch-btn"
+        {/* Camera switcher */}
+        <CameraToggleButton
           onClick={() =>
             setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'))
           }
-        >
-          ☰
-        </button>
+        />
       </div>
 
       <div className="right-panel">
@@ -73,7 +82,7 @@ const AnalysisPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AnalysisPage
+export default AnalysisPage;

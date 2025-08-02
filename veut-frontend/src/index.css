@@ -1,4 +1,7 @@
 /* index.css or global CSS */
+
+@import "tailwindcss";
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -11,3 +14,5 @@ body {
   background-color: #001524; /* Optional: match your container bg */
   overflow: hidden; /* Optional: remove unwanted scrollbars */
 }
+
+
