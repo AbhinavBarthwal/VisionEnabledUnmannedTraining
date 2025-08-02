@@ -47,15 +47,15 @@ const AnalysisPage = () => {
 
       {/* Annotated Image preview */}
       {annotatedImage && (
-        <img
+        <img className="w-[40%] h-[20vh] "
           src={annotatedImage}
           alt="Annotated Preview"
           style={{
             position: "absolute",
             top: 10,
             left: 10,
-            width: 160,
-            height: 120,
+            width: 300,
+            height: 250,
             border: "2px solid white",
             borderRadius: 8,
             objectFit: "cover",
@@ -81,7 +81,7 @@ const AnalysisPage = () => {
       {/* Red button triggers immediate capture */}
       <button
         className="absolute md:hidden bottom-20 left-1/2 transform -translate-x-1/2 w-[75px] h-[75px] bg-red-600 border-4 border-white rounded-full z-20 shadow-lg"
-        onClick={() => cameraFeedRef.current?.capture()}
+        onClick={() => setShouldAnalyze(true)}
       />
 
       {/* Desktop buttons */}
@@ -94,7 +94,7 @@ const AnalysisPage = () => {
         </button>
         <button
           className="bg-red-500 text-white py-2 px-6 rounded-lg text-lg shadow-md"
-          disabled
+          
         >
           STOP
         </button>
