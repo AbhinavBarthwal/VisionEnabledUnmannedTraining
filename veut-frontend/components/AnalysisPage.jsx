@@ -4,12 +4,13 @@ import './AnalysisPage.css'
 const AnalysisPage = () => {
   const videoRef = useRef(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [facingMode, setFacingMode] = useState('environment')
 
   useEffect(() => {
     const getVideo = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: { facingMode },
           audio: false,
         })
         if (videoRef.current) {
@@ -21,18 +22,28 @@ const AnalysisPage = () => {
     }
 
     getVideo()
-  }, [])
+  }, [facingMode])
 
   return (
     <div className="analysis-container">
       <div className="left-panel">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="live-feed"
+        <video ref={videoRef} autoPlay playsInline muted className="live-feed" />
+
+        {/* Red toggle button for mobile */}
+        <button
+          className="center-toggle-btn"
+          onClick={() => setIsAnalyzing(!isAnalyzing)}
         />
+
+        {/* Camera switcher (optional) */}
+        <button
+          className="camera-switch-btn"
+          onClick={() =>
+            setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'))
+          }
+        >
+          ☰
+        </button>
       </div>
 
       <div className="right-panel">
@@ -43,6 +54,7 @@ const AnalysisPage = () => {
           <p>Fire Extinguisher: 0</p>
         </div>
 
+        {/* Shown only on desktops */}
         <div className="controls">
           <button
             className="start-btn"

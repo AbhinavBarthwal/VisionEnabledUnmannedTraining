@@ -1,6 +1,13 @@
-body {
+/* index.css or global CSS */
+html, body, #root {
+  height: 100%;
   margin: 0;
-  font-family: 'Comic Sans MS', cursive;
-  background-color: #000d1a;
-  color: white;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  background-color: #001524; /* Optional: match your container bg */
+  overflow: hidden; /* Optional: remove unwanted scrollbars */
 }
