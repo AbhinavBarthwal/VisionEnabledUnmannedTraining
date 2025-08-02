@@ -48,9 +48,14 @@
     font-size: 1.5rem;
     padding: 0.4rem 0.7rem;
     border-radius: 50%;
+    width: 60px;
+    height: 60px;
     border: none;
     z-index: 2;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .center-toggle-btn {
@@ -58,8 +63,8 @@
     bottom: 1.2rem;
     left: 50%;
     transform: translateX(-50%);
-    width: 75px;
-    height: 75px;
+    width: 90px;
+    height: 90px;
     background-color: red;
     border: 5px solid white;
     border-radius: 50%;
