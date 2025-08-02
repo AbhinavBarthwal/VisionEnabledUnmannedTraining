@@ -1,28 +1,136 @@
 .analysis-container {
   display: flex;
+  flex-direction: row;
   height: 100vh;
-  
   background-color: #001524;
 }
 
-.left-panel {
 
+
+@media (max-width: 768px) {
+  .analysis-container {
+    flex-direction: column;
+    height: 100vh;
+    align-items:center;
+    width: 100vw;
+    padding: 0% !important;
+    margin: 0% !important;
+    overflow: hidden;
+  }
+
+  .left-panel {
+    width: 100vw !important;
+    height: 80% !important; /* 80% of viewport height */
+    padding: 0 !important;
+    margin: 0 !important;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .live-feed {
+    width: 100vw; /* Full width */
+    height: 100%;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+    border-radius: auto; /* Remove rounded edges */
+    box-shadow: none;
+  }
+
+  .camera-switch-btn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: white;
+    color: black;
+    font-size: 1.5rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 50%;
+    border: none;
+    z-index: 2;
+    cursor: pointer;
+  }
+
+  .center-toggle-btn {
+    position: absolute;
+    bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 75px;
+    height: 75px;
+    background-color: red;
+    border: 5px solid white;
+    border-radius: 50%;
+    z-index: 2;
+    cursor: pointer;
+  }
+
+  .controls {
+    display: none !important; /* Hide green/red buttons */
+  }
+
+  .right-panel {
+    width: 100vw !important;
+    height: 20%; /* Remaining 20% */
+    background-color: #888;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+
+    margin: 5 0 5 0 !important;
+  }
+
+  .object-list {
+    width: 100vw;
+    height: 100%;
+    background-color: #444;
+    color: white;
+    border-radius: 0;
+    padding: 1rem;
+    font-family: sans-serif;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .object-list h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .object-list p {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.3rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* ---------- DESKTOP VIEW ---------- */
+.left-panel {
   padding: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 80%;
+  overflow: hidden;
 }
 
 .live-feed {
   width: 100%;
   height: 100%;
+  overflow: hidden;
   border-radius: 1rem;
   box-shadow: 0 0 10px #00aaff;
 }
 
 .right-panel {
-
+  width: 20%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -30,9 +138,11 @@
   gap: 2rem;
   background-color: #001524;
   padding: 2rem;
-
 }
-
+.center-toggle-btn, .camera-switch-btn
+{
+  display: none !important;
+}
 .object-list {
   background: #fff;
   color: black;
@@ -52,7 +162,8 @@
   align-items: center;
 }
 
-.start-btn, .stop-btn {
+.start-btn,
+.stop-btn {
   padding: 1rem 2rem;
   font-size: 1.5rem;
   width: 250px;
