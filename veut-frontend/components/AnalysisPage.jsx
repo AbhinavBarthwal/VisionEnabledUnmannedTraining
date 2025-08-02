@@ -1,79 +1,41 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
-import './AnalysisPage.css';
-
-// === Camera Toggle Button Component ===
-const CameraToggleButton = ({ onClick }) => (
-  <button
-    className="camera-switch-btn"
-    onClick={onClick}
-    title="Switch Camera"
-  >
-    <RefreshCw size={30} />
-  </button>
-);
+import React, { useState } from "react";
+import CameraFeed from "./camerafeed";
 
 const AnalysisPage = () => {
-  const videoRef = useRef(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [facingMode, setFacingMode] = useState('environment');
-
-  useEffect(() => {
-    const getVideo = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode },
-          audio: false,
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        console.error('Error accessing webcam:', err);
-      }
-    };
-
-    getVideo();
-  }, [facingMode]);
 
   return (
-    <div className="analysis-container">
-      <div className="left-panel">
-        <video ref={videoRef} autoPlay playsInline muted className="live-feed" />
-
-        {/* Red toggle button for mobile */}
+    <div className="flex flex-col md:flex-row h-screen bg-[#001524]">
+      {/* Left Panel */}
+      <div className="flex-1 flex items-center justify-center relative">
+        <CameraFeed />
+        {/* Mobile toggle button */}
         <button
-          className="center-toggle-btn"
-          onClick={() => setIsAnalyzing(!isAnalyzing)}
-        />
-
-        {/* Camera switcher */}
-        <CameraToggleButton
-          onClick={() =>
-            setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'))
-          }
-        />
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-[75px] h-[75px] bg-red-600 border-4 border-white rounded-full z-20"
+          onClick={() => setIsAnalyzing((prev) => !prev)}
+        ></button>
       </div>
 
-      <div className="right-panel">
-        <div className="object-list">
-          <h2>objects detected</h2>
-          <p>Toolbox: 0</p>
-          <p>Oxygen Tank: 0</p>
-          <p>Fire Extinguisher: 0</p>
+      {/* Right Panel */}
+      <div className="w-full md:w-[20%] bg-[#001524] p-4 md:p-6 flex flex-col items-center justify-center space-y-6">
+        <div className="w-full max-w-xs bg-white text-black p-4 rounded-xl text-center">
+          <h2 className="text-lg font-semibold mb-2">Objects Detected</h2>
+          <p className="flex justify-between px-4">Toolbox: 0</p>
+          <p className="flex justify-between px-4">Oxygen Tank: 0</p>
+          <p className="flex justify-between px-4">Fire Extinguisher: 0</p>
         </div>
 
-        {/* Shown only on desktops */}
-        <div className="controls">
+        {/* Only visible on desktop */}
+        <div className="hidden md:flex flex-col space-y-4">
           <button
-            className="start-btn"
+            className="bg-green-500 text-white py-3 px-6 rounded-lg text-xl"
             onClick={() => setIsAnalyzing(true)}
             disabled={isAnalyzing}
           >
             START
           </button>
           <button
-            className="stop-btn"
+            className="bg-red-500 text-white py-3 px-6 rounded-lg text-xl"
             onClick={() => setIsAnalyzing(false)}
             disabled={!isAnalyzing}
           >
