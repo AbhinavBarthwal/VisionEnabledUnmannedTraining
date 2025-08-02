@@ -1,66 +1,76 @@
 // components/CameraFeed.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Webcam from "react-webcam";
+import axios from "axios";
 import CameraToggleButton from "./cameratogglebutton";
 
-const CameraFeed = ({ isCameraOn = true }) => {
-  const [videoDevices, setVideoDevices] = useState([]);
-  const [deviceId, setDeviceId] = useState(null);
-  const [isFrontCamera, setIsFrontCamera] = useState(false);
+const CameraFeed = ({ isCameraOn = true, isAnalyzing, onDetections }) => {
   const webcamRef = useRef(null);
-
-  const checkIfFrontCamera = (label) => /front|user/i.test(label);
+  const canvasRef = useRef(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    const getDevices = async () => {
+    if (!isAnalyzing) {
+      clearInterval(intervalRef.current);
+      return;
+    }
+
+    intervalRef.current = setInterval(async () => {
+      if (!webcamRef.current) return;
+      const screenshot = webcamRef.current.getScreenshot();
+      if (!screenshot) return;
+
+      const blob = await (await fetch(screenshot)).blob();
+      const formData = new FormData();
+      formData.append("file", blob, "frame.jpg");
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputs = devices.filter((d) => d.kind === "videoinput");
-
-        const preferredCam =
-          videoInputs.find((d) => /back|rear|environment/i.test(d.label)) || videoInputs[0];
-
-        setVideoDevices(videoInputs);
-        setDeviceId(preferredCam.deviceId);
-        setIsFrontCamera(checkIfFrontCamera(preferredCam.label));
-
-        stream.getTracks().forEach((track) => track.stop());
+        const res = await axios.post("http://localhost:8000/detect", formData);
+        const detections = res.data.detections;
+        drawDetections(detections);
+        onDetections(detections);
       } catch (err) {
-        console.error("Failed to access camera devices:", err);
+        console.error("Detection error:", err);
       }
-    };
+    }, 1000);
 
-    getDevices();
-  }, []);
+    return () => clearInterval(intervalRef.current);
+  }, [isAnalyzing]);
 
-  useEffect(() => {
-    const device = videoDevices.find((d) => d.deviceId === deviceId);
-    if (device) setIsFrontCamera(checkIfFrontCamera(device.label));
-  }, [deviceId, videoDevices]);
+  const drawDetections = (detections) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const switchCamera = () => {
-    if (videoDevices.length < 2) return;
-    const currentIndex = videoDevices.findIndex((d) => d.deviceId === deviceId);
-    const nextIndex = (currentIndex + 1) % videoDevices.length;
-    setDeviceId(videoDevices[nextIndex].deviceId);
+    detections.forEach(({ label, bbox }) => {
+      const [x, y, w, h] = bbox;
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "red";
+      ctx.fillText(label, x, y - 5);
+    });
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-lg bg-black">
+    <div className="relative w-full h-full">
       {isCameraOn && (
         <>
           <Webcam
-            key={deviceId}
             ref={webcamRef}
             audio={false}
             screenshotFormat="image/jpeg"
-            videoConstraints={{ deviceId }}
-            className={`w-full h-full object-cover ${
-              isFrontCamera ? "scale-x-[-1]" : ""
-            } rounded-lg`}
+            className="w-full h-full object-cover"
+            videoConstraints={{ facingMode: "environment" }}
           />
-          <CameraToggleButton onClick={switchCamera} />
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
+            width={640}
+            height={480}
+          />
+          <CameraToggleButton />
         </>
       )}
     </div>
