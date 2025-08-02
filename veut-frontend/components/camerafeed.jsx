@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
-import CameraToggleButton from "./CameraToggleButton";
-
+import CameraToggleButton from "./cameratogglebutton";
 const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCameraOn = true }) => {
   const [videoDevices, setVideoDevices] = useState([]);
   const [deviceId, setDeviceId] = useState(null);
