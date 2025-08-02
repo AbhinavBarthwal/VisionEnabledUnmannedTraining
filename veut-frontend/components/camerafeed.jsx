@@ -1,12 +1,51 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
-import axios from "axios";
+import CameraToggleButton from "./CameraToggleButton";
 
-const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone }) => {
+const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCameraOn = true }) => {
+  const [videoDevices, setVideoDevices] = useState([]);
+  const [deviceId, setDeviceId] = useState(null);
+  const [isFrontCamera, setIsFrontCamera] = useState(false);
   const webcamRef = useRef(null);
-  const [facingMode, setFacingMode] = useState("environment"); // default to back camera
 
-  // Capture and send image when shouldAnalyze changes to true
+  const checkIfFrontCamera = (label) => /front|user/i.test(label);
+
+  useEffect(() => {
+    const getDevices = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter((d) => d.kind === "videoinput");
+
+        const preferredCam =
+          videoInputs.find((d) => /back|rear|environment/i.test(d.label)) || videoInputs[0];
+
+        setVideoDevices(videoInputs);
+        setDeviceId(preferredCam.deviceId);
+        setIsFrontCamera(checkIfFrontCamera(preferredCam.label));
+
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (err) {
+        console.error("Failed to access camera devices:", err);
+      }
+    };
+
+    getDevices();
+  }, []);
+
+  useEffect(() => {
+    const device = videoDevices.find((d) => d.deviceId === deviceId);
+    if (device) setIsFrontCamera(checkIfFrontCamera(device.label));
+  }, [deviceId, videoDevices]);
+
+  const switchCamera = () => {
+    if (videoDevices.length < 2) return;
+    const currentIndex = videoDevices.findIndex((d) => d.deviceId === deviceId);
+    const nextIndex = (currentIndex + 1) % videoDevices.length;
+    setDeviceId(videoDevices[nextIndex].deviceId);
+  };
+
+  // Capture & send image when shouldAnalyze turns true
   useEffect(() => {
     const captureAndSend = async () => {
       if (!shouldAnalyze || !webcamRef.current) return;
@@ -19,10 +58,15 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone }) =>
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
 
-        const res = await axios.post("http://192.168.1.5:8000/detect", formData);
+        const res = await fetch("http://192.168.1.5:8000/detect", { // <-- replace with your backend URL
+          method: "POST",
+          body: formData,
+        });
 
-        onDetections(res.data.detections);
-        onImageReceived(`data:image/jpeg;base64,${res.data.annotated_image}`);
+        const data = await res.json();
+
+        onDetections(data.detections);
+        onImageReceived(`data:image/jpeg;base64,${data.annotated_image}`);
       } catch (error) {
         console.error("❌ Detection error:", error);
       } finally {
@@ -33,28 +77,21 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone }) =>
     captureAndSend();
   }, [shouldAnalyze, onDetections, onImageReceived, onDone]);
 
-  const toggleCamera = () => {
-    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
-  };
-
   return (
     <div className="relative w-full h-full overflow-hidden rounded-lg bg-black">
-      <Webcam
-        ref={webcamRef}
-        audio={false}
-        screenshotFormat="image/jpeg"
-        videoConstraints={{ facingMode }}
-        className="w-full h-full object-cover rounded-lg"
-      />
-
-      {/* Camera Switch Button */}
-      <button
-        onClick={toggleCamera}
-        className="absolute top-4 right-4 z-30 bg-white/70 rounded-full p-2 shadow-md"
-        title="Switch Camera"
-      >
-        🔄
-      </button>
+      {isCameraOn && (
+        <>
+          <Webcam
+            key={deviceId}
+            ref={webcamRef}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            videoConstraints={{ deviceId }}
+            className={`w-full h-full object-cover ${isFrontCamera ? "scale-x-[-1]" : ""} rounded-lg`}
+          />
+          <CameraToggleButton onClick={switchCamera} />
+        </>
+      )}
     </div>
   );
 };
