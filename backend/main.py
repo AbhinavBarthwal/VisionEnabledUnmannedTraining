@@ -1,27 +1,24 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
+from PIL import Image, ImageDraw, ImageFont
 import torch
 import numpy as np
-from PIL import Image
 from io import BytesIO
+import base64
 
 app = FastAPI()
 
-# Allow frontend (adjust URL in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # replace with http://localhost:5173 or vercel.app in prod
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load model
-model = YOLO("best.pt")
 device = "cuda" if torch.cuda.is_available() else "cpu"
+model = YOLO("best.pt")
 model.to(device)
-
-model = YOLO("best.pt").to("cuda" if torch.cuda.is_available() else "cpu")
 
 @app.post("/detect")
 async def detect(file: UploadFile = File(...)):
@@ -29,10 +26,18 @@ async def detect(file: UploadFile = File(...)):
     image = Image.open(BytesIO(contents)).convert("RGB")
     image_np = np.array(image)
 
-    results = model.predict(image_np, conf=0.25, iou=0.4, imgsz=640)
-    print("✅ Detections:", results[0].boxes)
+    results = model.predict(
+        image_np,
+        conf=0.25,
+        iou=0.45,
+        imgsz=640,
+        augment=False
+    )
 
     detections = []
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+
     for result in results:
         for box in result.boxes:
             x1, y1, x2, y2 = map(int, box.xyxy[0])
@@ -44,4 +49,20 @@ async def detect(file: UploadFile = File(...)):
                 "bbox": [x1, y1, x2 - x1, y2 - y1]
             })
 
-    return {"detections": detections}
+            # Draw rectangle
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+
+            # Draw label and confidence
+            text = f"{label} {conf:.2f}"
+            text_bbox = draw.textbbox((x1, y1), text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+            draw.rectangle([x1, y1 - text_height, x1 + text_width, y1], fill="red")
+            draw.text((x1, y1 - text_height), text, fill="white", font=font)
+
+    # Convert image to base64 string
+    buffered = BytesIO()
+    image.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+    return {"detections": detections, "annotated_image": img_str}
