@@ -17,7 +17,7 @@ const CameraFeed = forwardRef(({ shouldAnalyze, onDetections, isCameraOn = true,
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
 
-        const res = await axios.post("http://localhost:8000/detect", formData);
+        const res = await axios.post("http://192.168.1.5:8000/detect", formData);
 
         onDetections(res.data.detections);
         onImageReceived(`data:image/jpeg;base64,${res.data.annotated_image}`);
