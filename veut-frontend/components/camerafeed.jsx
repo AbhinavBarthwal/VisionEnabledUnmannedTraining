@@ -1,14 +1,13 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Webcam from "react-webcam";
 import axios from "axios";
-import CameraToggleButton from "./cameratogglebutton";
 
-const CameraFeed = ({ shouldAnalyze, onDetections, isCameraOn = true, onImageReceived, onDone }) => {
+const CameraFeed = forwardRef(({ shouldAnalyze, onDetections, isCameraOn = true, onImageReceived, onDone }, ref) => {
   const webcamRef = useRef(null);
 
-  useEffect(() => {
-    const captureAndSend = async () => {
-      if (!shouldAnalyze || !webcamRef.current) return;
+  useImperativeHandle(ref, () => ({
+    capture: async () => {
+      if (!webcamRef.current) return;
 
       const screenshot = webcamRef.current.getScreenshot();
       if (!screenshot) return;
@@ -27,10 +26,15 @@ const CameraFeed = ({ shouldAnalyze, onDetections, isCameraOn = true, onImageRec
       } finally {
         onDone(); // reset `shouldAnalyze`
       }
-    };
+    }
+  }));
 
-    captureAndSend();
-  }, [shouldAnalyze, onDetections, onImageReceived, onDone]);
+  // If you still want auto capture on shouldAnalyze change
+  useEffect(() => {
+    if (shouldAnalyze) {
+      ref.current?.capture();
+    }
+  }, [shouldAnalyze, ref]);
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-lg bg-black">
@@ -45,6 +49,6 @@ const CameraFeed = ({ shouldAnalyze, onDetections, isCameraOn = true, onImageRec
       )}
     </div>
   );
-};
+});
 
 export default CameraFeed;
