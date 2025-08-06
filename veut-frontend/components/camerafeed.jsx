@@ -57,7 +57,7 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCa
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
 
-        const res = await fetch("http://192.168.1.5:8000/detect", { // <-- replace with your backend URL
+        const res = await fetch("http://10.60.88.63:8000/detect", { // <-- replace with your backend URL
           method: "POST",
           body: formData,
         });
