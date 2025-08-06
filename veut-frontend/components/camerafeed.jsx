@@ -45,6 +45,7 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCa
     setDeviceId(videoDevices[nextIndex].deviceId);
   };
 
+  // Capture & send image when shouldAnalyze turns true
   useEffect(() => {
     const captureAndSend = async () => {
       if (!shouldAnalyze || !webcamRef.current) return;
@@ -57,14 +58,13 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCa
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
 
-        // Call the Vercel API proxy instead of backend directly
+        // ✅ Use Vercel proxy API instead of calling backend directly
         const res = await fetch("/api/detect", {
           method: "POST",
           body: formData,
         });
 
         const data = await res.json();
-
         onDetections(data.detections);
         onImageReceived(`data:image/jpeg;base64,${data.annotated_image}`);
       } catch (error) {
