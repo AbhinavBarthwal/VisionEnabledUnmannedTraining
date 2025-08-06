@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import CameraToggleButton from "./cameratogglebutton";
+
 const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCameraOn = true }) => {
   const [videoDevices, setVideoDevices] = useState([]);
   const [deviceId, setDeviceId] = useState(null);
@@ -44,7 +45,6 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCa
     setDeviceId(videoDevices[nextIndex].deviceId);
   };
 
-  // Capture & send image when shouldAnalyze turns true
   useEffect(() => {
     const captureAndSend = async () => {
       if (!shouldAnalyze || !webcamRef.current) return;
@@ -57,7 +57,8 @@ const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCa
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
 
-        const res = await fetch("http://10.60.88.63:8000/detect", { // <-- replace with your backend URL
+        // Call the Vercel API proxy instead of backend directly
+        const res = await fetch("/api/detect", {
           method: "POST",
           body: formData,
         });
