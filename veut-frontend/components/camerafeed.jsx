@@ -1,9 +1,7 @@
-// components/CameraFeed.jsx
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import CameraToggleButton from "./cameratogglebutton";
-
-const CameraFeed = ({ isCameraOn = true }) => {
+const CameraFeed = ({ shouldAnalyze, onDetections, onImageReceived, onDone, isCameraOn = true }) => {
   const [videoDevices, setVideoDevices] = useState([]);
   const [deviceId, setDeviceId] = useState(null);
   const [isFrontCamera, setIsFrontCamera] = useState(false);
@@ -46,6 +44,38 @@ const CameraFeed = ({ isCameraOn = true }) => {
     setDeviceId(videoDevices[nextIndex].deviceId);
   };
 
+  // Capture & send image when shouldAnalyze turns true
+  useEffect(() => {
+    const captureAndSend = async () => {
+      if (!shouldAnalyze || !webcamRef.current) return;
+
+      const screenshot = webcamRef.current.getScreenshot();
+      if (!screenshot) return;
+
+      try {
+        const blob = await (await fetch(screenshot)).blob();
+        const formData = new FormData();
+        formData.append("file", blob, "frame.jpg");
+
+        const res = await fetch("http://192.168.1.5:8000/detect", { // <-- replace with your backend URL
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        onDetections(data.detections);
+        onImageReceived(`data:image/jpeg;base64,${data.annotated_image}`);
+      } catch (error) {
+        console.error("❌ Detection error:", error);
+      } finally {
+        onDone();
+      }
+    };
+
+    captureAndSend();
+  }, [shouldAnalyze, onDetections, onImageReceived, onDone]);
+
   return (
     <div className="relative w-full h-full overflow-hidden rounded-lg bg-black">
       {isCameraOn && (
@@ -56,9 +86,7 @@ const CameraFeed = ({ isCameraOn = true }) => {
             audio={false}
             screenshotFormat="image/jpeg"
             videoConstraints={{ deviceId }}
-            className={`w-full h-full object-cover ${
-              isFrontCamera ? "scale-x-[-1]" : ""
-            } rounded-lg`}
+            className={`w-full h-full object-cover ${isFrontCamera ? "scale-x-[-1]" : ""} rounded-lg`}
           />
           <CameraToggleButton onClick={switchCamera} />
         </>

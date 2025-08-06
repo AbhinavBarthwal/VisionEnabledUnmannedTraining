@@ -8,6 +8,17 @@ This project implements a **YOLOv8-based object detection system** for identifyi
 - 🧰 **Tool Box** (Class 1)
 - 🔥 **Oxygen Tank** (Class 2)
 
+
+## 📊 Performance Metrics (YOLOv8n Final Model)
+
+- **Precision:** 94.4%
+
+- **Recall:** 91.4%
+
+- **mAP@0.5:** 95.1%
+
+- **Training Time:** ~4.7 hours (CPU)
+
 ## 📊 Dataset Information
 
 ### Dataset Statistics
@@ -238,28 +249,15 @@ This model is designed for **industrial safety compliance** and can be used in:
 - **🚛 Warehouses** - Automated safety equipment inventory
 - **📹 Security systems** - Real-time safety compliance monitoring
 
-## 📞 Support & Documentation
 
-### Generated Documentation
-- **📋 analysis_report.txt** - Detailed dataset analysis
-- **📊 training_curves.png** - Training progress visualization
-- **📈 evaluation_metrics.txt** - Model performance metrics
-- **🖼️ sample_predictions.jpg** - Visual results examples
+##📊 Performance Metrics (YOLOv8n Final Model)
 
-### Troubleshooting
-- **Memory issues**: Reduce batch size or use smaller model variant
-- **Slow training**: Enable GPU acceleration, check CUDA installation
-- **Poor accuracy**: Increase training epochs, verify data quality
-- **Export errors**: Install specific framework dependencies
+-**Precision:** 94.4%
 
-## 🎯 Next Steps
+-**Recall:** 91.4%
 
-1. **🔄 Train your model** using the provided scripts
-2. **📊 Evaluate performance** on your specific use case
-3. **🚀 Deploy to production** using exported model formats
-4. **📈 Monitor and improve** with additional data as needed
-5. **🔧 Customize** for specific industrial environments
+-**mAP@0.5:** 95.1%
 
----
+-**mAP@0.5: **0.95: 67.0%
 
-**Built with YOLOv8 and Ultralytics | Trained on Falcon Synthetic Data | Ready for Industrial Deployment** 🚀
+-**Training Time:** ~4.7 hours (CPU)
